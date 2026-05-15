@@ -4,7 +4,6 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base: '/chatbot/',
   plugins: [react()],
-  base: '/chatbot/',
   server: {
     port: 5173,
     proxy: {
