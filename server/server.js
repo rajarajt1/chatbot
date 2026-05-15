@@ -37,7 +37,8 @@ app.post('/api/chat', async (req, res) => {
   try {
     const response = await axios.post(
       `${OLLAMA_BASE}/api/chat`,
-      { model: model || 'llama3.1:latest', messages: fullMessages, stream: false },
+      // { model: model || 'llama3.1:latest', messages: fullMessages, stream: false },
+      { model: model || 'gpt-oss:latest', messages: fullMessages, stream: false },
       { httpsAgent }
     );
     res.json({ message: response.data.message.content });
@@ -46,5 +47,5 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`🚀 SRM AI Backend running at http://localhost:${PORT}`));

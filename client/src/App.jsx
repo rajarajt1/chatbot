@@ -11,14 +11,15 @@ export default function App() {
     sendMessage, loading, error,
   } = useChat();
 
-  const [model, setModel] = useState('llama3.1:latest');
+  // const [model, setModel] = useState('llama3.1:latest');
+  const [model, setModel] = useState('gpt-oss:latest');
   const [systemPrompt, setSystemPrompt] = useState('You are a helpful AI assistant for a MERN stack developer. Be concise, practical, and always provide code examples when relevant.');
   const [models, setModels] = useState([]);
   const bottomRef = useRef(null);
 
   // Fetch available models from SRM server
   useEffect(() => {
-    fetch('/api/models')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/models`)
       .then(r => r.json())
       .then(d => { if (d.models) setModels(d.models); })
       .catch(() => {});
