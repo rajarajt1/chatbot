@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-export default function ChatInput({ onSend, loading, model, setModel, models, systemPrompt, setSystemPrompt }) {
+export default function ChatInput({ onSend, loading, model, setModel, models, systemPrompt, setSystemPrompt, isMobile }) {
   const [input, setInput] = useState('');
   const [showSystem, setShowSystem] = useState(false);
   const textareaRef = useRef(null);
@@ -27,7 +27,9 @@ export default function ChatInput({ onSend, loading, model, setModel, models, sy
 
   return (
     <div style={{
-      borderTop: '1px solid var(--border)', background: 'var(--bg2)', padding: '12px 20px 16px',
+      borderTop: '1px solid var(--border)', background: 'var(--bg2)',
+      padding: isMobile ? '10px 12px 12px' : '12px 20px 16px',
+      paddingBottom: isMobile ? 'calc(12px + env(safe-area-inset-bottom))' : '16px',
     }}>
       {/* System Prompt Panel */}
       {showSystem && (
@@ -44,13 +46,17 @@ export default function ChatInput({ onSend, loading, model, setModel, models, sy
               width: '100%', background: 'var(--bg3)', border: '1px solid var(--border2)',
               borderRadius: 'var(--radius-sm)', color: 'var(--text)', padding: '8px 12px',
               fontSize: '13px', resize: 'vertical', outline: 'none', fontFamily: 'var(--font-mono)',
+              boxSizing: 'border-box',
             }}
           />
         </div>
       )}
 
       {/* Toolbar */}
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+      <div style={{
+        display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px',
+        flexWrap: isMobile ? 'wrap' : 'nowrap',
+      }}>
         {/* Model selector */}
         <select
           value={model}
@@ -58,11 +64,13 @@ export default function ChatInput({ onSend, loading, model, setModel, models, sy
           style={{
             background: 'var(--bg3)', border: '1px solid var(--border2)',
             color: 'var(--text)', borderRadius: 'var(--radius-sm)',
-            padding: '5px 10px', fontSize: '12px', fontFamily: 'var(--font-mono)',
+            padding: '7px 10px', fontSize: '12px', fontFamily: 'var(--font-mono)',
             outline: 'none', cursor: 'pointer',
+            flex: isMobile ? 1 : 'none',
+            minHeight: '36px',
           }}
         >
-          {models.length === 0 && <option value="llama3.1:latest">llama3.1:latest</option>}
+          {models.length === 0 && <option value="gpt-oss:latest">gpt-oss:latest</option>}
           {models.map(m => (
             <option key={m.name} value={m.name}>{m.name}</option>
           ))}
@@ -75,32 +83,37 @@ export default function ChatInput({ onSend, loading, model, setModel, models, sy
             background: showSystem ? 'var(--bg4)' : 'var(--bg3)',
             border: `1px solid ${showSystem ? 'var(--accent)' : 'var(--border2)'}`,
             color: showSystem ? 'var(--accent2)' : 'var(--text3)',
-            borderRadius: 'var(--radius-sm)', padding: '5px 10px',
+            borderRadius: 'var(--radius-sm)', padding: '7px 10px',
             fontSize: '12px', transition: 'all 0.2s',
+            minHeight: '36px', whiteSpace: 'nowrap',
           }}
         >
-          ⚙ System Prompt
+          ⚙ {isMobile ? 'System' : 'System Prompt'}
         </button>
 
-        <div style={{ flex: 1 }} />
-        <div style={{ fontSize: '11px', color: 'var(--text3)' }}>
-          Shift+Enter for new line
-        </div>
+        {!isMobile && (
+          <>
+            <div style={{ flex: 1 }} />
+            <div style={{ fontSize: '11px', color: 'var(--text3)' }}>
+              Shift+Enter for new line
+            </div>
+          </>
+        )}
       </div>
 
       {/* Input row */}
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
         <textarea
           ref={textareaRef}
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKey}
-          placeholder="Ask anything... (code, explain, debug, refactor)"
+          placeholder={isMobile ? 'Ask anything...' : 'Ask anything... (code, explain, debug, refactor)'}
           rows={1}
           style={{
             flex: 1, background: 'var(--bg3)', border: '1px solid var(--border2)',
             borderRadius: 'var(--radius)', color: 'var(--text)',
-            padding: '12px 16px', fontSize: '14px', resize: 'none',
+            padding: '12px 14px', fontSize: '14px', resize: 'none',
             outline: 'none', lineHeight: 1.6, transition: 'border-color 0.2s',
             fontFamily: 'var(--font-body)',
           }}
@@ -113,20 +126,20 @@ export default function ChatInput({ onSend, loading, model, setModel, models, sy
           onClick={handleSend}
           disabled={!input.trim() || loading}
           style={{
-            padding: '12px 20px', background: loading ? 'var(--bg4)' : 'var(--accent)',
+            padding: isMobile ? '12px 14px' : '12px 20px',
+            background: loading ? 'var(--bg4)' : 'var(--accent)',
             color: '#fff', border: 'none', borderRadius: 'var(--radius)',
             fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '14px',
             opacity: (!input.trim() || loading) ? 0.5 : 1,
             transition: 'all 0.2s', whiteSpace: 'nowrap',
             display: 'flex', alignItems: 'center', gap: '6px',
+            minWidth: isMobile ? '48px' : 'auto', minHeight: '48px',
+            justifyContent: 'center',
           }}
         >
           {loading ? (
-            <>
-              <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-              Thinking
-            </>
-          ) : 'Send ↑'}
+            <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          ) : (isMobile ? '↑' : 'Send ↑')}
         </button>
       </div>
     </div>

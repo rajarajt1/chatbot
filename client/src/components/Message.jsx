@@ -31,7 +31,7 @@ const components = {
     const code = String(children).replace(/\n$/, '');
     if (!inline && match) {
       return (
-        <div style={{ position: 'relative', margin: '12px 0' }}>
+        <div style={{ position: 'relative', margin: '12px 0', overflowX: 'auto' }}>
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             background: '#1e1e2e', padding: '6px 12px',
@@ -104,7 +104,8 @@ export default function Message({ message }) {
       <div style={{
         display: 'flex', alignItems: 'flex-start', gap: '10px',
         flexDirection: isUser ? 'row-reverse' : 'row',
-        maxWidth: isUser ? '75%' : '90%',
+        maxWidth: isUser ? '85%' : '95%',
+        width: '100%',
       }}>
         {/* Avatar */}
         <div style={{
@@ -121,8 +122,9 @@ export default function Message({ message }) {
           background: isUser ? 'var(--user-bubble)' : 'var(--bg3)',
           border: `1px solid ${isUser ? 'var(--user-border)' : 'var(--border)'}`,
           borderRadius: isUser ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-          padding: '12px 16px', color: 'var(--text)',
+          padding: '12px 14px', color: 'var(--text)',
           fontSize: '14px', lineHeight: 1.7, wordBreak: 'break-word',
+          minWidth: 0, overflow: 'hidden',
         }}>
           {isUser ? (
             <p style={{ margin: 0 }}>{message.content}</p>

@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 
-const styles = {
-  sidebar: {
-    width: '260px', minWidth: '260px', background: 'var(--bg2)',
-    borderRight: '1px solid var(--border)', display: 'flex',
-    flexDirection: 'column', height: '100%', overflow: 'hidden',
-  },
+const baseStyles = {
   header: {
     padding: '20px 16px 12px', borderBottom: '1px solid var(--border)',
   },
@@ -15,7 +10,7 @@ const styles = {
     display: 'flex', alignItems: 'center', gap: '8px',
   },
   newBtn: {
-    width: '100%', padding: '9px 14px', background: 'var(--accent)',
+    width: '100%', padding: '10px 14px', background: 'var(--accent)',
     color: '#fff', border: 'none', borderRadius: 'var(--radius-sm)',
     fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '13px',
     display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center',
@@ -28,7 +23,7 @@ const styles = {
     padding: '8px 8px 4px',
   },
   sessionItem: (active) => ({
-    padding: '9px 12px', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+    padding: '10px 12px', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
     background: active ? 'var(--bg4)' : 'transparent',
     border: active ? '1px solid var(--border2)' : '1px solid transparent',
     marginBottom: '2px', display: 'flex', alignItems: 'center',
@@ -41,14 +36,14 @@ const styles = {
   },
   deleteBtn: {
     background: 'none', border: 'none', color: 'var(--text3)',
-    fontSize: '14px', padding: '2px 4px', borderRadius: '4px',
-    opacity: 0, transition: 'opacity 0.15s',
+    fontSize: '14px', padding: '4px 6px', borderRadius: '4px',
+    opacity: 0, transition: 'opacity 0.15s', minWidth: '28px', minHeight: '28px',
   },
   footer: {
     padding: '12px 16px', borderTop: '1px solid var(--border)',
   },
   clearBtn: {
-    width: '100%', padding: '8px', background: 'none',
+    width: '100%', padding: '9px', background: 'none',
     border: '1px solid var(--border)', color: 'var(--text3)',
     borderRadius: 'var(--radius-sm)', fontSize: '12px', transition: 'all 0.2s',
   },
@@ -59,56 +54,94 @@ const styles = {
   },
 };
 
-export default function Sidebar({ sessions, activeId, setActiveId, createSession, deleteSession, clearAll }) {
+export default function Sidebar({ sessions, activeId, setActiveId, createSession, deleteSession, clearAll, isMobile, isOpen, onClose }) {
   const [hoveredId, setHoveredId] = useState(null);
 
+  const sidebarStyle = isMobile
+    ? {
+        position: 'fixed', top: 0, left: 0, height: '100%',
+        width: '280px', background: 'var(--bg2)',
+        borderRight: '1px solid var(--border)', display: 'flex',
+        flexDirection: 'column', overflow: 'hidden',
+        zIndex: 100,
+        transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
+      }
+    : {
+        width: '260px', minWidth: '260px', background: 'var(--bg2)',
+        borderRight: '1px solid var(--border)', display: 'flex',
+        flexDirection: 'column', height: '100%', overflow: 'hidden',
+      };
+
   return (
-    <div style={styles.sidebar}>
-      <div style={styles.header}>
-        <div style={styles.logo}>
-          <span>⚡</span> chola's AI
+    <div style={sidebarStyle}>
+      <div style={baseStyles.header}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <div style={{ ...baseStyles.logo, marginBottom: 0 }}>
+            <span>⚡</span> chola's AI
+          </div>
+          {isMobile && (
+            <button
+              onClick={onClose}
+              style={{
+                background: 'none', border: 'none', color: 'var(--text2)',
+                fontSize: '20px', padding: '4px 8px', lineHeight: 1,
+                minWidth: '36px', minHeight: '36px', display: 'flex',
+                alignItems: 'center', justifyContent: 'center',
+              }}
+            >✕</button>
+          )}
         </div>
-        <button style={styles.newBtn} onClick={() => createSession()} onMouseOver={e => e.target.style.opacity = '0.85'} onMouseOut={e => e.target.style.opacity = '1'}>
+        <button
+          style={baseStyles.newBtn}
+          onClick={() => createSession()}
+          onMouseOver={e => e.currentTarget.style.opacity = '0.85'}
+          onMouseOut={e => e.currentTarget.style.opacity = '1'}
+        >
           + New Chat
         </button>
       </div>
 
-      <div style={styles.sessionList}>
+      <div style={baseStyles.sessionList}>
         {sessions.length === 0 && (
           <div style={{ padding: '24px 12px', color: 'var(--text3)', fontSize: '12px', textAlign: 'center' }}>
             No chats yet. Start a new conversation!
           </div>
         )}
-        {sessions.length > 0 && <div style={styles.sectionLabel}>Recent Chats</div>}
+        {sessions.length > 0 && <div style={baseStyles.sectionLabel}>Recent Chats</div>}
         {sessions.map(session => (
           <div
             key={session.id}
-            style={styles.sessionItem(session.id === activeId)}
+            style={baseStyles.sessionItem(session.id === activeId)}
             onClick={() => setActiveId(session.id)}
             onMouseEnter={e => {
               setHoveredId(session.id);
-              e.currentTarget.querySelector('.del-btn').style.opacity = '1';
+              const btn = e.currentTarget.querySelector('.del-btn');
+              if (btn) btn.style.opacity = '1';
             }}
             onMouseLeave={e => {
               setHoveredId(null);
-              e.currentTarget.querySelector('.del-btn').style.opacity = '0';
+              const btn = e.currentTarget.querySelector('.del-btn');
+              if (btn) btn.style.opacity = '0';
             }}
           >
             <span style={{ fontSize: '12px' }}>💬</span>
-            <span style={styles.sessionTitle}>{session.title || 'New Chat'}</span>
-            <span style={styles.modelBadge}>{session.model?.split(':')[0]?.slice(0, 6)}</span>
+            <span style={baseStyles.sessionTitle}>{session.title || 'New Chat'}</span>
+            <span style={baseStyles.modelBadge}>{session.model?.split(':')[0]?.slice(0, 6)}</span>
             <button
               className="del-btn"
-              style={styles.deleteBtn}
+              style={{ ...baseStyles.deleteBtn, opacity: isMobile ? 1 : 0 }}
               onClick={e => { e.stopPropagation(); deleteSession(session.id); }}
             >✕</button>
           </div>
         ))}
       </div>
 
-      <div style={styles.footer}>
+      <div style={baseStyles.footer}>
         {sessions.length > 0 && (
-          <button style={styles.clearBtn} onClick={clearAll}
+          <button
+            style={baseStyles.clearBtn}
+            onClick={clearAll}
             onMouseOver={e => { e.target.style.borderColor = 'var(--error)'; e.target.style.color = 'var(--error)'; }}
             onMouseOut={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.color = 'var(--text3)'; }}
           >
@@ -122,3 +155,4 @@ export default function Sidebar({ sessions, activeId, setActiveId, createSession
     </div>
   );
 }
+

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from './hooks/useChat';
+import { useMobile } from './hooks/useMobile';
 import Sidebar from './components/Sidebar';
 import Message from './components/Message';
 import ChatInput from './components/ChatInput';
@@ -10,6 +11,9 @@ export default function App() {
     createSession, deleteSession, clearAll,
     sendMessage, loading, error,
   } = useChat();
+
+  const isMobile = useMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // const [model, setModel] = useState('llama3.1:latest');
   const [model, setModel] = useState('gpt-oss:latest');
@@ -37,27 +41,53 @@ export default function App() {
   const messages = activeSession?.messages || [];
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', position: 'relative' }}>
+      {/* Mobile backdrop */}
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+            zIndex: 99, backdropFilter: 'blur(2px)',
+          }}
+        />
+      )}
+
       <Sidebar
         sessions={sessions}
         activeId={activeId}
-        setActiveId={setActiveId}
-        createSession={() => createSession(model, systemPrompt)}
+        setActiveId={(id) => { setActiveId(id); if (isMobile) setSidebarOpen(false); }}
+        createSession={() => { createSession(model, systemPrompt); if (isMobile) setSidebarOpen(false); }}
         deleteSession={deleteSession}
         clearAll={clearAll}
+        isMobile={isMobile}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
       {/* Main chat area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
         {/* Top bar */}
         <div style={{
-          padding: '14px 24px', borderBottom: '1px solid var(--border)',
+          padding: isMobile ? '12px 16px' : '14px 24px',
+          borderBottom: '1px solid var(--border)',
           background: 'var(--bg2)', display: 'flex', alignItems: 'center', gap: '12px',
         }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '15px' }}>
+          {/* Hamburger on mobile */}
+          {isMobile && (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              style={{
+                background: 'none', border: 'none', color: 'var(--text2)',
+                fontSize: '20px', padding: '4px 6px', lineHeight: 1,
+                display: 'flex', alignItems: 'center', flexShrink: 0,
+              }}
+            >☰</button>
+          )}
+          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: isMobile ? '14px' : '15px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
             {activeSession?.title || 'SRM AI Assistant'}
           </div>
-          {activeSession && (
+          {activeSession && !isMobile && (
             <span style={{
               fontSize: '11px', fontFamily: 'var(--font-mono)',
               color: 'var(--accent3)', background: 'rgba(74,222,128,0.1)',
@@ -67,14 +97,15 @@ export default function App() {
               ● {activeSession.model}
             </span>
           )}
-          <div style={{ flex: 1 }} />
-          <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
-            {messages.length > 0 ? `${messages.length} messages` : 'No messages yet'}
-          </span>
+          {!isMobile && (
+            <span style={{ fontSize: '11px', color: 'var(--text3)', flexShrink: 0 }}>
+              {messages.length > 0 ? `${messages.length} messages` : 'No messages yet'}
+            </span>
+          )}
         </div>
 
         {/* Messages */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: isMobile ? '16px 12px' : '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {messages.length === 0 && (
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text3)', gap: '16px' }}>
               <div style={{ fontSize: '48px' }}>⚡</div>
@@ -90,7 +121,7 @@ export default function App() {
                   <button key={s} onClick={() => handleSend(s)} style={{
                     background: 'var(--bg3)', border: '1px solid var(--border2)',
                     color: 'var(--text2)', borderRadius: '20px',
-                    padding: '6px 14px', fontSize: '12px', cursor: 'pointer',
+                    padding: isMobile ? '8px 14px' : '6px 14px', fontSize: '12px', cursor: 'pointer',
                     transition: 'all 0.2s',
                   }}
                     onMouseOver={e => { e.target.style.borderColor = 'var(--accent)'; e.target.style.color = 'var(--accent2)'; }}
@@ -146,6 +177,7 @@ export default function App() {
           models={models}
           systemPrompt={systemPrompt}
           setSystemPrompt={setSystemPrompt}
+          isMobile={isMobile}
         />
       </div>
     </div>
