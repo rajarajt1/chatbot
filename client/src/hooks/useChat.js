@@ -91,7 +91,8 @@ export function useChat() {
         role: m.role, content: m.content
       }));
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/chat`, {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${API_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
         body: JSON.stringify({ messages: history, model, systemPrompt }),

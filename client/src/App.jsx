@@ -21,13 +21,15 @@ export default function App() {
   const [models, setModels] = useState([]);
   const bottomRef = useRef(null);
 
+  const API_URL = import.meta.env.VITE_API_URL || '';
+
   // Fetch available models from SRM server
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || ''}/api/models`, { headers: { 'ngrok-skip-browser-warning': 'true' } })
+    fetch(`${API_URL}/api/models`, { headers: { 'ngrok-skip-browser-warning': 'true' } })
       .then(r => r.json())
       .then(d => { if (d.models) setModels(d.models); })
       .catch(() => {});
-  }, []);
+  }, [API_URL]);
 
   // Auto scroll to bottom
   useEffect(() => {
