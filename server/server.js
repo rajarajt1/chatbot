@@ -4,12 +4,7 @@ const cors = require('cors');
 const https = require('https');
 
 const app = express();
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://rajarajt1.github.io'
-  ]
-}));
+app.use(cors());
 app.use(express.json());
 
 // Bypass ngrok browser warning
