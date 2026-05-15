@@ -2,7 +2,8 @@
   "name": "srm-ai-chat",
   "version": "1.0.0",
   "scripts": {
-    "start": "cd server && node server.js",
+    "start": "node server.js",
+    "build": "cd server && npm install",
     "setup": "cd server && npm install && cd ../client && npm install",
     "server": "cd server && node server.js",
     "client": "cd client && npm run dev",
