@@ -7,6 +7,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Bypass ngrok browser warning
+app.use((req, res, next) => {
+  res.setHeader('ngrok-skip-browser-warning', 'true');
+  next();
+});
+
 const OLLAMA_BASE = 'https://dld.srmist.edu.in/ollama';
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 

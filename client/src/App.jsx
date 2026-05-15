@@ -19,7 +19,7 @@ export default function App() {
 
   // Fetch available models from SRM server
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || ''}/api/models`)
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/models`, { headers: { 'ngrok-skip-browser-warning': 'true' } })
       .then(r => r.json())
       .then(d => { if (d.models) setModels(d.models); })
       .catch(() => {});
